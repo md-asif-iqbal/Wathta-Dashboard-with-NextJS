@@ -60,7 +60,6 @@ export default function CreateOrder() {
   // watch form values reactively for totals
   const watchProducts = useWatch({ control, name: "products" }) as { productId: string; quantity: number }[];
   const watchShipping = useWatch({ control, name: "shippingCost" }) as number | string;
-  const watchStatus = useWatch({ control, name: "deliveryStatus" }) as "Pending" | "Shipped" | "Delivered" | "Canceled";
 
   useEffect(() => {
     if (!products?.length || !watchProducts) return;
@@ -99,7 +98,7 @@ export default function CreateOrder() {
 
   const mutation = useMutation({
     mutationFn: async (data: OrderInput) => {
-      const cleaned: any = { ...data };
+      const cleaned: OrderInput & { customerSatisfaction?: number } = { ...data };
       if (cleaned.deliveryStatus !== "Delivered") {
         cleaned.customerSatisfaction = undefined;
       }

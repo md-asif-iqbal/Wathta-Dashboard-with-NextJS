@@ -26,14 +26,27 @@ const schema = z.object({
 
 type OrderInput = z.infer<typeof schema>;
 
+type Product = { _id: string; name: string; price: number };
+type OrderData = {
+  orderId?: string;
+  clientName: string;
+  deliveryAddress: string;
+  paymentStatus: "Paid" | "Pending" | "Refunded";
+  deliveryStatus: "Pending" | "Shipped" | "Delivered" | "Canceled";
+  expectedDeliveryDate: string;
+  shippingCost?: number;
+  customerSatisfaction?: 1 | 2 | 3;
+  products: { productId: { _id: string } | string; quantity: number }[];
+};
+
 export default function EditOrderPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { data: order } = useQuery({ queryKey: ["order", id], queryFn: async () => (await fetch(`/api/orders?id=${id}`)).json() });
-  const { data: products = [] } = useQuery({ queryKey: ["products"], queryFn: async () => (await fetch(`/api/products`)).json() });
+  const { data: order } = useQuery<OrderData>({ queryKey: ["order", id], queryFn: async () => (await fetch(`/api/orders?id=${id}`)).json() });
+  const { data: products = [] } = useQuery<Product[]>({ queryKey: ["products"], queryFn: async () => (await fetch(`/api/products`)).json() });
   const { show } = useToast();
 
-  const { register, handleSubmit, control, setValue, watch, formState: { isSubmitting } } = useForm<OrderInput>({ resolver: zodResolver(schema) });
+  const { register, handleSubmit, control, setValue, watch, formState: { isSubmitting } } = useForm({ resolver: zodResolver(schema) });
   const { fields, append, remove } = useFieldArray({ control, name: "products" });
   const watchProducts = watch("products") as { productId: string; quantity: number }[];
   const [total, setTotal] = useState(0);
@@ -51,14 +64,14 @@ export default function EditOrderPage() {
     setValue("customerSatisfaction", order.customerSatisfaction ?? undefined);
     setValue(
       "products",
-      order.products?.map((p: any) => ({ productId: p.productId?._id || p.productId, quantity: p.quantity || 1 })) || []
+      order.products?.map((p) => ({ productId: (typeof p.productId === 'string' ? p.productId : p.productId?._id) || "", quantity: p.quantity || 1 })) || []
     );
   }, [order, setValue]);
 
   useEffect(() => {
     if (!products?.length) return;
     const items = watchProducts?.reduce((acc, p) => {
-      const prod = products.find((x: any) => x._id === p.productId);
+      const prod = products.find((x: Product) => x._id === p.productId);
       return acc + (prod ? prod.price * (p.quantity || 1) : 0);
     }, 0) || 0;
     const shipping = Number(watch("shippingCost") || 0);
@@ -71,7 +84,7 @@ export default function EditOrderPage() {
 
   const mutation = useMutation({
     mutationFn: async (payload: OrderInput) => {
-      const cleaned: any = { ...payload };
+      const cleaned: OrderInput & { customerSatisfaction?: number } = { ...payload };
       if (cleaned.deliveryStatus !== "Delivered") cleaned.customerSatisfaction = undefined;
       const res = await fetch(`/api/orders?id=${id}`, {
         method: "PUT",
@@ -167,7 +180,7 @@ export default function EditOrderPage() {
               <div key={item.id} className="grid grid-cols-[1fr_110px_40px] gap-2">
                 <select disabled {...register(`products.${i}.productId`)} className="border p-2 rounded w-full bg-transparent">
                   <option value="">Select product</option>
-                  {products.map((p: any) => (
+                  {products.map((p: Product) => (
                     <option key={p._id} value={p._id}>{p.name} (${p.price})</option>
                   ))}
                 </select>

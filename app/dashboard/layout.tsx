@@ -10,7 +10,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const router = useRouter();
-  const [isAuthed, setIsAuthed] = useState(false);
+  const [isAuthed] = useState<boolean>(() => {
+    if (typeof document === "undefined") return false;
+    return document.cookie.includes("auth_token=");
+  });
 
   async function handleLogout() {
     try {
@@ -19,10 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     } catch {}
   }
 
-  useEffect(() => {
-    // simple client-side cookie check
-    setIsAuthed(document.cookie.includes("auth_token="));
-  }, []);
+  // no effect needed; value is derived once on mount via initializer
 
   return (
     <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">

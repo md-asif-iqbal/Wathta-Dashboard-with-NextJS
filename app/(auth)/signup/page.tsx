@@ -28,8 +28,9 @@ export default function SignUpPage() {
       });
       if (!res.ok) throw new Error((await res.json()).message || "Failed");
       router.push("/signin");
-    } catch (err: any) {
-      setError(err.message || "Sign up failed");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Sign up failed";
+      setError(message);
     } finally {
       setLoading(false);
     }
