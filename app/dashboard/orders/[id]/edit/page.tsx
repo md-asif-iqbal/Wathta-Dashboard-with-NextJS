@@ -84,7 +84,7 @@ export default function EditOrderPage() {
       // Build granular toast messages based on changes
       const changes: string[] = [];
       if (order) {
-        // intentionally skip status_updated toast per request
+        if (variables.deliveryStatus !== order.deliveryStatus) changes.push(`status:${variables.deliveryStatus}`);
         if (variables.deliveryAddress !== order.deliveryAddress) changes.push("address_updated");
         const prevSat = order.customerSatisfaction ?? undefined;
         const newSat = variables.customerSatisfaction ?? undefined;
@@ -92,7 +92,7 @@ export default function EditOrderPage() {
         if (variables.paymentStatus !== order.paymentStatus) changes.push("payment_updated");
       }
       const toasts = changes.join(",");
-      const target = toasts ? `/dashboard/orders?toasts=${encodeURIComponent(toasts)}` : "/dashboard/orders?toasts=order_updated";
+      const target = toasts ? `/dashboard/orders?toasts=${encodeURIComponent(toasts)}` : "/dashboard/orders";
       router.push(target);
     },
     onError: () => show({ title: "Update failed", description: "Please try again", variant: "error" }),

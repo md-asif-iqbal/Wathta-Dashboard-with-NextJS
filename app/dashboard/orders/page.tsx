@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ColumnDef,
@@ -185,19 +185,29 @@ export default function OrderList() {
   );
 
   // show toasts on redirect (granular)
-  const toastsParam = params.get("toasts");
-  if (toastsParam) {
+  const handledToastsRef = useRef(false);
+  useEffect(() => {
+    if (handledToastsRef.current) return;
+    const toastsParam = params.get("toasts");
+    if (!toastsParam) return;
+    handledToastsRef.current = true;
     const keys = decodeURIComponent(toastsParam).split(",").filter(Boolean);
+    const labels: string[] = [];
     keys.forEach((k) => {
-      if (k === "address_updated") show({ title: "Address updated", variant: "success" });
-      else if (k === "feedback_updated") show({ title: "Feedback updated", variant: "success" });
-      else if (k === "payment_updated") show({ title: "Payment updated", variant: "success" });
-      else if (k === "order_updated") show({ title: "Order updated", variant: "success" });
+      if (k.startsWith("status:")) {
+        const status = k.split(":")[1] || "Updated";
+        labels.push(`Status: ${status}`);
+      } else if (k === "address_updated") labels.push("Address updated");
+      else if (k === "feedback_updated") labels.push("Feedback updated");
+      else if (k === "payment_updated") labels.push("Payment updated");
     });
+    if (labels.length) {
+      show({ title: "Order updated", description: labels.join(", "), variant: "success" });
+    }
     const next = new URL(window.location.href);
     next.searchParams.delete("toasts");
     router.replace(next.pathname + next.search);
-  }
+  }, [params, router, show]);
 
   const table = useReactTable({
     data: orders,

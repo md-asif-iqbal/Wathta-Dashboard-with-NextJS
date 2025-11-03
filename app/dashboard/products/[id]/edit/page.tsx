@@ -54,9 +54,17 @@ export default function EditProductPage() {
       });
       return res.json();
     },
-    onSuccess: () => {
-      show({ title: "Product updated", description: "Changes saved", variant: "success" });
-      router.push("/dashboard/products");
+    onSuccess: (_, variables) => {
+      const changes: string[] = [];
+      if (data) {
+        if (variables.name !== data.name) changes.push("name");
+        if (variables.category !== data.category) changes.push("category");
+        if (variables.price !== data.price) changes.push("price");
+        if (variables.stock !== data.stock) changes.push("stock");
+        if (variables.active !== data.active) changes.push("status");
+      }
+      const q = changes.length ? `?ptoasts=${encodeURIComponent(changes.join(","))}` : "";
+      router.push(`/dashboard/products${q}`);
     },
     onError: () => show({ title: "Update failed", description: "Please try again", variant: "error" }),
   });

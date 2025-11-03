@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useToast } from "@/components/ui/toast";
 import Image from "next/image";
 
@@ -34,6 +34,7 @@ type ProductInput = z.infer<typeof schema>;
 export default function CreateProduct() {
   const router = useRouter();
   const [preview, setPreview] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const { show } = useToast();
 
   const {
@@ -74,6 +75,33 @@ export default function CreateProduct() {
     };
     reader.readAsDataURL(file);
   }
+
+  const handleDrop = useCallback((ev: React.DragEvent<HTMLDivElement>) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    setIsDragging(false);
+    const file = ev.dataTransfer.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setPreview(dataUrl);
+      setValue("image", dataUrl);
+    };
+    reader.readAsDataURL(file);
+  }, [setValue]);
+
+  const handleDragOver = useCallback((ev: React.DragEvent<HTMLDivElement>) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((ev: React.DragEvent<HTMLDivElement>) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    setIsDragging(false);
+  }, []);
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
@@ -141,7 +169,22 @@ export default function CreateProduct() {
             </div>
             <div className="space-y-2">
               <label className="block text-sm">Product Image (optional)</label>
-              <input type="file" accept="image/*" onChange={handleImageChange} />
+              <div
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                className={`relative flex flex-col items-center justify-center gap-2 rounded-md border border-dashed p-6 text-center transition ${
+                  isDragging ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20" : "border-gray-300 dark:border-gray-700"
+                }`}
+              >
+                <p className="text-sm text-muted-foreground">Drag & drop an image here, or click to select</p>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                />
+              </div>
               {preview && (
                 <Image src={preview} alt="Preview" width={112} height={112} className="mt-2 h-28 w-28 rounded object-cover border" />
               )}

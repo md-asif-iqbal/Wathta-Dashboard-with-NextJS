@@ -1,16 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Sun, Moon, Menu } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const [isAuthed, setIsAuthed] = useState(false);
 
   async function handleLogout() {
     try {
@@ -18,6 +18,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       router.push("/signin");
     } catch {}
   }
+
+  useEffect(() => {
+    // simple client-side cookie check
+    setIsAuthed(document.cookie.includes("auth_token="));
+  }, []);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100">
@@ -38,12 +43,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             >
               {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
-            <button className="hidden sm:inline-flex px-3 py-2 text-sm rounded border hover:bg-gray-100 dark:hover:bg-gray-900" onClick={handleLogout}>
-              Logout
-            </button>
-            <Avatar>
-              <AvatarFallback>AA</AvatarFallback>
-            </Avatar>
+            {isAuthed ? (
+              <button className="hidden sm:inline-flex px-3 py-2 text-sm rounded border hover:bg-gray-100 dark:hover:bg-gray-900" onClick={handleLogout}>
+                Logout
+              </button>
+            ) : (
+              <Link href="/signin" className="hidden sm:inline-flex px-3 py-2 text-sm rounded border hover:bg-gray-100 dark:hover:bg-gray-900">
+                Login
+              </Link>
+            )}
           </div>
         </div>
       </header>

@@ -36,51 +36,38 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.green.100/40),transparent_60%),radial-gradient(ellipse_at_bottom,theme(colors.teal.100/30),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_top,theme(colors.green.900/20),transparent_60%),radial-gradient(ellipse_at_bottom,theme(colors.teal.900/10),transparent_60%)]" />
-      <div className="relative z-10 mx-auto max-w-6xl grid gap-8 p-6 md:grid-cols-2">
-        <div className="hidden md:flex flex-col justify-center animate-in fade-in slide-in-from-left-6 duration-300">
-          <h1 className="text-3xl font-bold tracking-tight">Create your account</h1>
-          <p className="mt-2 text-muted-foreground">Start managing your products and orders with a delightful experience.</p>
-          <div className="mt-8 grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-lg border p-4">Free to try • Fast setup</div>
-            <div className="rounded-lg border p-4">Clean UI • Great UX</div>
-          </div>
-        </div>
-        <div className="flex items-center justify-center">
-          <Card className="w/full max-w-md shadow-sm border animate-in fade-in slide-in-from-right-6 duration-300">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><UserPlus className="h-5 w-5" /> Create an account</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={onSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <div className="relative">
-                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input className="pl-9" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-                  </div>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input className="pl-9" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  </div>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input className="pl-9" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                  </div>
-                </div>
-                {error && <p className="text-sm text-red-600">{error}</p>}
-                <Button type="submit" className="w-full gap-2" disabled={loading}>
-                  {loading && <span className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />}
-                  Sign Up
-                </Button>
-                <div className="text-sm text-center">
-                  Already have an account? <Link className="underline" href="/signin">Sign in</Link>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+    <div className="min-h-screen grid place-items-center p-6">
+      <Card className="w-full max-w-2xl shadow-sm border animate-in fade-in zoom-in-50 duration-300">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 justify-center text-2xl"><UserPlus className="h-6 w-6" /> Create an account</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={onSubmit} className="space-y-5 md:px-10 ">
+            <div className="space-y-6">
+              <div className="relative">
+                <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="pl-9 h-11" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
+              </div>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="pl-9 h-11" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input className="pl-9 h-11" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              </div>
+            </div>
+            {error && <p className="text-sm text-red-600 text-center">{error}</p>}
+            <Button type="submit" className="w-full h-11 gap-2" disabled={loading}>
+              {loading && <span className="h-4 w-4 rounded-full border-2 border-current border-t-transparent animate-spin" />}
+              Sign Up
+            </Button>
+            <div className="text-sm text-center">
+              Already have an account? <Link className="underline" href="/signin">Sign in</Link>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

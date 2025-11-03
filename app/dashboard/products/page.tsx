@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ColumnDef,
@@ -52,13 +52,31 @@ export default function ProductList() {
   const [pendingDelete, setPendingDelete] = useState<Product | null>(null);
 
   // show toast on redirect
-  const toastParam = params.get("toast");
-  if (toastParam === "product_created") {
-    show({ title: "Product created", variant: "success" });
+  const handledToastsRef = useRef(false);
+  useEffect(() => {
+    if (handledToastsRef.current) return;
+    const toastParam = params.get("toast");
+    const ptoasts = params.get("ptoasts");
+    if (!toastParam && !ptoasts) return;
+    handledToastsRef.current = true;
+    if (toastParam === "product_created") {
+      show({ title: "Product created", variant: "success" });
+    }
+    if (ptoasts) {
+      const keys = decodeURIComponent(ptoasts).split(",").filter(Boolean);
+      keys.forEach((k) => {
+        if (k === "name") show({ title: "Name updated", variant: "success" });
+        else if (k === "category") show({ title: "Category updated", variant: "success" });
+        else if (k === "price") show({ title: "Price updated", variant: "success" });
+        else if (k === "stock") show({ title: "Stock updated", variant: "success" });
+        else if (k === "status") show({ title: "Status updated", variant: "success" });
+      });
+    }
     const next = new URL(window.location.href);
     next.searchParams.delete("toast");
+    next.searchParams.delete("ptoasts");
     router.replace(next.pathname + next.search);
-  }
+  }, [params, router, show]);
 
   const columns = useMemo<ColumnDef<Product>[]>(
     () => [
