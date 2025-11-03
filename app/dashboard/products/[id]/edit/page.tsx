@@ -63,7 +63,10 @@ export default function EditProductPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <h1 className="text-2xl font-semibold">Edit Product</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Edit Product</h1>
+        <Button variant="ghost" onClick={() => router.push("/dashboard/products")}>Back to Products</Button>
+      </div>
       <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="grid gap-6 md:grid-cols-2">
         <Card className="shadow-sm border">
           <CardHeader>

@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Progress } from "@/components/ui/progress";
+import { CheckCircle, Truck, Clock, XCircle } from "lucide-react";
 import { useToast } from "@/components/ui/toast";
 import { Dialog, DialogFooter, DialogHeader } from "@/components/ui/dialog";
 
@@ -113,18 +114,41 @@ export default function OrderList() {
       {
         id: "progress",
         header: () => "Progress",
-        cell: ({ row }) => (
-          <div className="w-28">
-            <Progress value={row.original.deliveryStatus === "Delivered" ? 100 : row.original.deliveryStatus === "Shipped" ? 70 : row.original.deliveryStatus === "Pending" ? 30 : 0} />
-          </div>
-        ),
+        cell: ({ row }) => {
+          const status = row.original.deliveryStatus;
+          const value = status === "Delivered" ? 100 : status === "Shipped" ? 70 : status === "Pending" ? 30 : 0;
+          const Icon = status === "Delivered" ? CheckCircle : status === "Shipped" ? Truck : status === "Pending" ? Clock : XCircle;
+          const iconClass = status === "Delivered" ? "text-green-600" : status === "Shipped" ? "text-blue-600" : status === "Pending" ? "text-yellow-600" : "text-red-600";
+          return (
+            <div className="flex items-center gap-2 w-36">
+              <Icon className={`h-4 w-4 ${iconClass}`} />
+              <Progress value={value} />
+            </div>
+          );
+        },
       },
       {
         id: "satisfaction",
         header: () => "Feedback",
-        cell: () => {
-          const faces = ["😀", "😐", "😡"];
-          return <span className="text-lg">{faces[Math.floor(Math.random() * faces.length)]}</span>;
+        cell: ({ row }) => {
+          const status = row.original.deliveryStatus;
+          const raw = (row.original as { customerSatisfaction?: number | string }).customerSatisfaction;
+          const val = raw != null ? (typeof raw === "string" ? Number(raw) : raw) : undefined;
+          // Priority: Canceled -> 😡, Delivered/Shipped -> 😀, else use saved value or neutral
+          const face = status === "Canceled"
+            ? "😡"
+            : status === "Delivered" || status === "Shipped"
+            ? "😀"
+            : val === 1
+            ? "😀"
+            : val === 2
+            ? "😐"
+            : val === 3
+            ? "😡"
+            : "😐";
+          const title =
+            status === "Canceled" ? "Canceled" : status === "Delivered" || status === "Shipped" ? "Happy" : val ? String(val) : "Neutral";
+          return <span className="text-lg" title={title}>{face}</span>;
         },
       },
       {
@@ -160,12 +184,18 @@ export default function OrderList() {
     [queryClient, show]
   );
 
-  // show toast on redirect (e.g., order updated)
-  const toastParam = params.get("toast");
-  if (toastParam === "order_updated") {
-    show({ title: "Order updated", variant: "success" });
+  // show toasts on redirect (granular)
+  const toastsParam = params.get("toasts");
+  if (toastsParam) {
+    const keys = decodeURIComponent(toastsParam).split(",").filter(Boolean);
+    keys.forEach((k) => {
+      if (k === "address_updated") show({ title: "Address updated", variant: "success" });
+      else if (k === "feedback_updated") show({ title: "Feedback updated", variant: "success" });
+      else if (k === "payment_updated") show({ title: "Payment updated", variant: "success" });
+      else if (k === "order_updated") show({ title: "Order updated", variant: "success" });
+    });
     const next = new URL(window.location.href);
-    next.searchParams.delete("toast");
+    next.searchParams.delete("toasts");
     router.replace(next.pathname + next.search);
   }
 

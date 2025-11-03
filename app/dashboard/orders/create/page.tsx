@@ -60,6 +60,7 @@ export default function CreateOrder() {
   // watch form values reactively for totals
   const watchProducts = useWatch({ control, name: "products" }) as { productId: string; quantity: number }[];
   const watchShipping = useWatch({ control, name: "shippingCost" }) as number | string;
+  const watchStatus = useWatch({ control, name: "deliveryStatus" }) as "Pending" | "Shipped" | "Delivered" | "Canceled";
 
   useEffect(() => {
     if (!products?.length || !watchProducts) return;
@@ -98,13 +99,17 @@ export default function CreateOrder() {
 
   const mutation = useMutation({
     mutationFn: async (data: OrderInput) => {
+      const cleaned: any = { ...data };
+      if (cleaned.deliveryStatus !== "Delivered") {
+        cleaned.customerSatisfaction = undefined;
+      }
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...data,
+          ...cleaned,
           totalAmount: total,
-          deliveryProgress: computeProgress(data.deliveryStatus),
+          deliveryProgress: computeProgress(cleaned.deliveryStatus),
         }),
       });
       return res.json();
@@ -148,12 +153,18 @@ export default function CreateOrder() {
               </div>
               <div>
                 <label className="block text-sm mb-1">Customer Satisfaction</label>
-                <select {...register("customerSatisfaction")} className="border p-2 rounded w-full bg-transparent">
-                  <option value="">N/A</option>
-                  <option value={1}>😀 Happy</option>
-                  <option value={2}>😐 Neutral</option>
-                  <option value={3}>😡 Unhappy</option>
-                </select>
+                <div className="flex items-center gap-2">
+                  <label className="inline-flex items-center gap-1">
+                    <input type="radio" value={1} {...register("customerSatisfaction")} /> <span>😀</span>
+                  </label>
+                  <label className="inline-flex items-center gap-1">
+                    <input type="radio" value={2} {...register("customerSatisfaction")} /> <span>😐</span>
+                  </label>
+                  <label className="inline-flex items-center gap-1">
+                    <input type="radio" value={3} {...register("customerSatisfaction")} /> <span>😡</span>
+                  </label>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">Note: Satisfaction is recorded when status is Delivered.</p>
               </div>
             </div>
             <div className="grid sm:grid-cols-2 gap-3">

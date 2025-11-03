@@ -71,23 +71,41 @@ export default function EditOrderPage() {
 
   const mutation = useMutation({
     mutationFn: async (payload: OrderInput) => {
+      const cleaned: any = { ...payload };
+      if (cleaned.deliveryStatus !== "Delivered") cleaned.customerSatisfaction = undefined;
       const res = await fetch(`/api/orders?id=${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, totalAmount: total, deliveryProgress: computeProgress(payload.deliveryStatus) }),
+        body: JSON.stringify({ ...cleaned, totalAmount: total, deliveryProgress: computeProgress(cleaned.deliveryStatus) }),
       });
       return res.json();
     },
-    onSuccess: () => {
-      router.push("/dashboard/orders?toast=order_updated");
+    onSuccess: (_, variables) => {
+      // Build granular toast messages based on changes
+      const changes: string[] = [];
+      if (order) {
+        // intentionally skip status_updated toast per request
+        if (variables.deliveryAddress !== order.deliveryAddress) changes.push("address_updated");
+        const prevSat = order.customerSatisfaction ?? undefined;
+        const newSat = variables.customerSatisfaction ?? undefined;
+        if (newSat !== prevSat) changes.push("feedback_updated");
+        if (variables.paymentStatus !== order.paymentStatus) changes.push("payment_updated");
+      }
+      const toasts = changes.join(",");
+      const target = toasts ? `/dashboard/orders?toasts=${encodeURIComponent(toasts)}` : "/dashboard/orders?toasts=order_updated";
+      router.push(target);
     },
     onError: () => show({ title: "Update failed", description: "Please try again", variant: "error" }),
   });
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-      <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
+      <div className="lg:col-span-2 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Edit Order</h1>
+        <Button variant="ghost" onClick={() => router.push("/dashboard/orders")}>Back to Orders</Button>
+      </div>
+      <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
+        
         <Card className="shadow-sm border">
           <CardHeader>
             <CardTitle>Order Details</CardTitle>
@@ -110,7 +128,7 @@ export default function EditOrderPage() {
               </div>
               <div>
                 <label className="block text-sm mb-1">Payment Status</label>
-                <select disabled {...register("paymentStatus")} className="border p-2 rounded w-full bg-transparent">
+                <select {...register("paymentStatus")} className="border p-2 rounded w-full bg-transparent">
                   <option value="Paid">Paid</option>
                   <option value="Pending">Pending</option>
                   <option value="Refunded">Refunded</option>
@@ -119,7 +137,7 @@ export default function EditOrderPage() {
             </div>
             <div>
               <label className="block text-sm mb-1">Delivery Address</label>
-              <Textarea disabled rows={3} {...register("deliveryAddress")} />
+              <Textarea rows={3} {...register("deliveryAddress")} />
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               <div>
@@ -136,6 +154,7 @@ export default function EditOrderPage() {
                 <Input disabled type="number" min={0} step="0.01" {...register("shippingCost")} />
               </div>
             </div>
+           
           </CardContent>
         </Card>
 
