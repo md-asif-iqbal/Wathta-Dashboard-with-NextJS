@@ -30,9 +30,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <header className="sticky top-0 z-30 border-b bg-white/80 dark:bg-gray-950/80 backdrop-blur supports-backdrop-filter:bg-white/60 dark:supports-backdrop-filter:bg-gray-950/60">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
+
             <button className="md:hidden p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-900" onClick={() => setOpen((o) => !o)} aria-label="Toggle navigation">
               <Menu className="h-5 w-5" />
             </button>
+            
             <Link href="/dashboard" className="font-semibold">Dashboard</Link>
           </div>
           <div className="flex items-center gap-3">

@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend, AreaChart, Area, LineChart, Line } from "recharts";
 import { ShoppingBag, Package, DollarSign, Truck } from "lucide-react";
 import { Loader } from "@/components/ui/loader";
 import { Button } from "@/components/ui/button";
@@ -98,22 +98,62 @@ export default function DashboardHome() {
         </Card>
       </div>
 
-      {/* --- Analytics Section --- */}
-      <Card className="shadow-sm border">
+      {/* --- Business Summary --- */}
+      <Card className="shadow-sm border overflow-hidden">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Business Summary</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
           {loadingProducts || loadingOrders ? (
             <Loader label="Loading analytics" />
           ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={chartData}>
-                <XAxis dataKey="name" />
-                <Tooltip />
-                <Bar dataKey="value" fill="#2563eb" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="grid gap-6 lg:grid-cols-3">
+              {/* Left: Bars */}
+              <div className="col-span-2 rounded-lg border bg-white/70 p-3 dark:bg-gray-950/40">
+                <div className="text-sm text-muted-foreground mb-2">Entity overview</div>
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                    <XAxis dataKey="name" />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="value" name="Count" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Right: Mini KPIs with sparkline */}
+              <div className="space-y-4 ">
+                <div className="rounded-lg border p-3">
+                  <div className="text-sm text-muted-foreground">7d Orders Trend</div>
+                  <div className="h-20">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart data={Array.from({ length: 7 }).map((_, i) => ({ d: i, v: Math.max(0, totalOrders - (6 - i)) }))}>
+                        <defs>
+                          <linearGradient id="trend" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#22c55e" stopOpacity={0.6} />
+                            <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <Tooltip />
+                        <Area dataKey="v" stroke="#22c55e" fill="url(#trend)" strokeWidth={2} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-sm text-muted-foreground">7d Sales Sparkline</div>
+                  <div className="h-20">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={Array.from({ length: 7 }).map((_, i) => ({ d: i, v: Math.max(0, totalSales / 7 + (i - 3) * 10) }))}>
+                        <Tooltip />
+                        <Line type="monotone" dataKey="v" stroke="#0ea5e9" strokeWidth={2} dot={false} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

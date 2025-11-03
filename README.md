@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dashboard App
 
-## Getting Started
+A modern, responsive mini dashboard built with Next.js and ShadCN UI. Manage Products and Orders with create/list/edit flows, advanced tables, live forms with validation, and polished UX (dark mode, loaders, animations, toasts).
 
-First, run the development server:
+## ✨ Features
+- Products: Create, List (TanStack Table), Edit, Delete
+- Orders: Create (live totals, shipping), List (progress, feedback, badges), Edit (status/address/payment/feedback), Delete
+- Auth: Sign up / Sign in, cookie-based session, route protection
+- UI/UX: ShadCN components, dark mode, loaders, toasts (success/error), confirm dialog, responsive layout
+- Charts: Recharts (bars, sparkline/area/line)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🧭 What can you do here?
+- Add products with full details and image (drag & drop)
+- Create orders: select products, quantities, shipping; see instant totals and line items
+- Track delivery progress and customer feedback icons in the orders table
+- Edit orders (status, address, payment, feedback) and products; get granular success toasts
+
+## 🛠 Tech Stack
+- Next.js 16 (App Router)
+- React 19
+- ShadCN UI + Tailwind CSS
+- TanStack Query + TanStack Table
+- React Hook Form + Zod
+- Recharts
+- MongoDB + Mongoose
+
+## 📂 Folder Structure
+```
+app/
+  (auth)/              # signin/signup pages
+  api/                 # REST API routes (products, orders, auth)
+  dashboard/           # protected dashboard layout + pages
+    products/
+      create/
+      [id]/edit/
+    orders/
+      create/
+      [id]/edit/
+components/
+  ui/                  # shadcn-like UI + custom loader/toast/dialog
+lib/
+  mongodb.ts           # Mongoose connection helper
+models/                # Mongoose models (Product, Order, User)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
+1. Install deps
+```bash
+npm install
+```
+2. Add `.env.local`
+```
+MONGODB_URI="your-connection-string"
+```
+3. Run dev server
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🔑 Authentication
+- Sign up at `/signup` → Sign in at `/signin`
+- Protected routes under `/dashboard` via middleware cookie check
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧾 API Overview
+- `GET/POST/PUT/DELETE /api/products`
+- `GET/POST/PUT/DELETE /api/orders`
+- `POST /api/auth/signup`, `POST/DELETE /api/auth/signin`
 
-## Learn More
+## 💡 UI Conventions
+- Top-right toasts for all success/error notifications
+- Confirm Dialog for destructive actions (Delete)
+- Consistent gradient background across app (light/dark)
 
-To learn more about Next.js, take a look at the following resources:
+## 📋 Scripts
+- `npm run dev` – start dev server
+- `npm run build` – build
+- `npm run start` – start production
+- `npm run lint` – lint
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🗺 Roadmap (nice-to-have)
+- Order details page with timeline
+- Persist table filters + theme to localStorage
+- Replace base64 images with upload storage
