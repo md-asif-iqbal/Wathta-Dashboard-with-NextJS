@@ -4,7 +4,14 @@ const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) throw new Error("Missing MONGODB_URI in .env.local");
 
-const cached = (global as any).mongoose || { conn: null, promise: null };
+declare global {
+  var mongooseCache:
+    | { conn: typeof mongoose | null; promise: Promise<typeof mongoose> | null }
+    | undefined;
+}
+
+const cached = globalThis.mongooseCache ??
+  (globalThis.mongooseCache = { conn: null, promise: null });
 
 export async function connectToDatabase() {
   if (cached.conn) return cached.conn;
