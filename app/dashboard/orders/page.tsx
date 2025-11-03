@@ -181,7 +181,7 @@ export default function OrderList() {
         ),
       },
     ],
-    [queryClient, show]
+    []
   );
 
   // show toasts on redirect (granular)

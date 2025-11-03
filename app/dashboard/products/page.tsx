@@ -154,7 +154,7 @@ export default function ProductList() {
         ),
       },
     ],
-    [queryClient, show]
+    []
   );
 
   // removed unused table without filters
