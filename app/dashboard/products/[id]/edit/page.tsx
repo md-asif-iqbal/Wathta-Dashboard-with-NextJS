@@ -35,7 +35,7 @@ export default function EditProductPage() {
     queryFn: async () => (await fetch(`/api/products?id=${id}`)).json(),
   });
 
-  const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<ProductInput>({
+  const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm({
     resolver: zodResolver(schema),
   });
 
