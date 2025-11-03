@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Sun, Moon, Menu } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -10,10 +11,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [open, setOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const router = useRouter();
-  const [isAuthed] = useState<boolean>(() => {
+  const pathname = usePathname();
+  const [isAuthed, setIsAuthed] = useState(() => {
     if (typeof document === "undefined") return false;
     return document.cookie.includes("auth_token=");
   });
+
+  useEffect(() => {
+    // Re-check auth cookie when pathname changes (after login/logout navigation)
+    const check = () => {
+      if (typeof document !== "undefined") {
+        setIsAuthed(document.cookie.includes("auth_token="));
+      }
+    };
+    check();
+  }, [pathname]);
 
   async function handleLogout() {
     try {
@@ -46,12 +58,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
             {isAuthed ? (
-              <button className="hidden sm:inline-flex px-3 py-2 text-sm rounded border hover:bg-gray-100 dark:hover:bg-gray-900" onClick={handleLogout}>
-                Logout
+              <button className=" sm:inline-flex px-3 py-2 text-sm rounded border hover:bg-gray-100 dark:hover:bg-gray-900" onClick={handleLogout}>
+                Login
               </button>
             ) : (
-              <Link href="/signin" className="hidden sm:inline-flex px-3 py-2 text-sm rounded border hover:bg-gray-100 dark:hover:bg-gray-900">
-                Login
+              <Link href="/signin" className=" sm:inline-flex px-3 py-2 text-sm rounded border hover:bg-gray-100 dark:hover:bg-gray-900">
+                 Logout
               </Link>
             )}
           </div>
