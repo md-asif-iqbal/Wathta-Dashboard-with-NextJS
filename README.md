@@ -24,6 +24,8 @@ A modern, responsive mini dashboard built with Next.js and ShadCN UI. Manage Pro
 - Recharts
 - MongoDB + Mongoose
 
+### User Password : admin@gmail.com | password : admin
+
 ## 📂 Folder Structure
 ```
 app/
