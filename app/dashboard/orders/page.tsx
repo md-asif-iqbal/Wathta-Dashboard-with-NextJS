@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ColumnDef,
@@ -35,7 +35,7 @@ type Order = {
   createdAt?: string;
 };
 
-export default function OrderList() {
+function OrderListInner() {
   const { data: orders = [], isLoading } = useQuery<Order[]>({
     queryKey: ["orders"],
     queryFn: async () => (await fetch("/api/orders")).json(),
@@ -314,5 +314,13 @@ export default function OrderList() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function OrderList() {
+  return (
+    <Suspense fallback={<div className="p-6">Loading...</div>}>
+      <OrderListInner />
+    </Suspense>
   );
 }
