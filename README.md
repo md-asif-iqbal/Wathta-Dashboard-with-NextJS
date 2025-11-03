@@ -24,7 +24,8 @@ A modern, responsive mini dashboard built with Next.js and ShadCN UI. Manage Pro
 - Recharts
 - MongoDB + Mongoose
 
-### User Password : admin@gmail.com | password : admin
+
+
 
 ## 📂 Folder Structure
 ```
@@ -83,3 +84,7 @@ npm run dev
 - Order details page with timeline
 - Persist table filters + theme to localStorage
 - Replace base64 images with upload storage
+
+
+## Live Link :https://wathta-dashboard-with-next-js-ndvq.vercel.app/
+### User Password : admin@gmail.com | password : admin
